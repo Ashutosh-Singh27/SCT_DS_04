@@ -28,3 +28,5 @@ accident_map = folium.Map(location=[sample_df['Start_Lat'].mean(), sample_df['St
 for _, row in sample_df.iterrows():
     folium.CircleMarker(location=[row['Start_Lat'], row['Start_Lng']], radius=2, color='red', fill=True).add_to(accident_map)
 accident_map.save('accident_hotspots_map.html')
+
+#Downlaod US_Accidents dataset from: https://www.kaggle.com/datasets/sobhanmoosavi/us-accidents
