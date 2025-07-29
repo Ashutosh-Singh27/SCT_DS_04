@@ -1,0 +1,30 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+import folium
+
+df = pd.read_csv('US_Accidents.csv')
+df['Start_Time'] = pd.to_datetime(df['Start_Time'], errors='coerce')
+df['Hour'] = df['Start_Time'].dt.hour
+df['Time of Day'] = pd.cut(df['Hour'], bins=[0,6,12,18,24], labels=['Night','Morning','Afternoon','Evening'], right=False)
+
+weather_counts = df['Weather_Condition'].value_counts().nlargest(10)
+plt.figure(figsize=(10,5))
+sns.barplot(x=weather_counts.index, y=weather_counts.values)
+plt.xticks(rotation=45)
+plt.title('Top 10 Weather Conditions During Accidents')
+plt.tight_layout()
+plt.show()
+
+time_dist = df['Time of Day'].value_counts().sort_index()
+plt.figure(figsize=(6,4))
+sns.barplot(x=time_dist.index, y=time_dist.values)
+plt.title('Accidents by Time of Day')
+plt.tight_layout()
+plt.show()
+
+sample_df = df.dropna(subset=['Start_Lat','Start_Lng']).sample(1000)
+accident_map = folium.Map(location=[sample_df['Start_Lat'].mean(), sample_df['Start_Lng'].mean()], zoom_start=4)
+for _, row in sample_df.iterrows():
+    folium.CircleMarker(location=[row['Start_Lat'], row['Start_Lng']], radius=2, color='red', fill=True).add_to(accident_map)
+accident_map.save('accident_hotspots_map.html')
